@@ -18,3 +18,12 @@ Since the netfork server is meant to reconstruct a process given the data receiv
     * e.g. It's not possible to duplicate opened file handles.
 * It was not made with security in mind.
 * Very large processes will probably take a long time to netfork; or there will likely be a higher chance of failure.
+
+## References
+
+* Windows Internals, 7th Edition
+* https://captmeelo.com/redteam/maldev/2022/05/10/ntcreateuserprocess.html
+* https://www.geoffchappell.com/index.htm
+* https://github.com/winsiderss/phnt
+* https://www.huntandhackett.com/blog/concealed-code-execution-techniques-and-detection
+* https://medium.com/@Achilles8284 ("Birth of a Process", Parts 1 and 2)
