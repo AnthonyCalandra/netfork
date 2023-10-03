@@ -64,6 +64,16 @@ protected:
 public:
 	unique_handle_impl() = default;
 
+	unique_handle_impl(HandleType& handle) noexcept
+		: handle_{ handle }
+	{
+	}
+
+	unique_handle_impl(HandleType&& handle) noexcept
+		: handle_{ std::move(handle) }
+	{
+	}
+
 	// Deleted copy construction and assignment.
 	unique_handle_impl(const unique_handle_impl&) noexcept = delete;
 	unique_handle_impl& operator=(const unique_handle_impl&) noexcept = delete;
@@ -152,15 +162,17 @@ public:
 	{
 	}
 
-	explicit unique_handle(const HANDLE handle) noexcept
+	explicit unique_handle(HANDLE handle) noexcept
+		: unique_handle_impl<unique_handle<Deleter>, HANDLE, Deleter>(handle)
 	{
-		this->handle_ = handle;
 	}
 
 	bool is_valid() const noexcept
 	{
-		// Handles can have two "invalid" values: https://devblogs.microsoft.com/oldnewthing/20040302-00/?p=40443
-		return this->handle_ != INVALID_HANDLE_VALUE && this->handle_ != nullptr;
+		// Handles can have two "invalid" values:
+		// https://devblogs.microsoft.com/oldnewthing/20040302-00/?p=40443
+		return this->get() != INVALID_HANDLE_VALUE
+			&& this->get() != nullptr;
 	}
 };
 

@@ -21,8 +21,9 @@
 #include <vector>
 #include <span>
 
-#include <netfork-shared/net/msg.hpp>
+#include <netfork-shared/auto.hpp>
 #include <netfork-shared/log.hpp>
+#include <netfork-shared/net/msg.hpp>
 #include <netfork-shared/phnt_stub.hpp>
 #include <netfork-shared/utils.hpp>
 
@@ -76,10 +77,31 @@ namespace netfork::vm
 
                 co_yield subregion;
 
-                if (subregion.protect & PAGE_GUARD || subregion.protect == 0)
+                if (subregion.protect == 0 ||
+                    subregion.protect & (PAGE_NOACCESS | PAGE_GUARD))
                 {
                     continue;
                 }
+
+                [[maybe_unused]] DWORD old_protect;
+                if (!::VirtualProtectEx(
+                    ::GetCurrentProcess(),
+                    subregion.base_address,
+                    subregion.region_size,
+                    PAGE_EXECUTE_READWRITE,
+                    &old_protect))
+                {
+                    LOG_DEBUG_ERR() << "Failed to change memory protection to allow RWX at: 0x"
+                        << std::hex << subregion.base_address << std::dec
+                        << " GetLastError: " << ::GetLastError() << std::endl;
+                }
+                AT_SCOPE_EXIT(::VirtualProtectEx(
+                    ::GetCurrentProcess(),
+                    subregion.base_address,
+                    subregion.region_size,
+                    subregion.protect,
+                    &old_protect
+                ));
 
                 co_yield std::span<char>{
                     reinterpret_cast<char*>(subregion.base_address),

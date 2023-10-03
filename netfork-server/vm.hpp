@@ -132,7 +132,7 @@ namespace netfork::vm
                         << " GetLastError: " << ::GetLastError() << std::endl;
                 }
 
-                if (subregion_info.protect & PAGE_GUARD)
+                if (subregion_info.protect & (PAGE_NOACCESS | PAGE_GUARD))
                 {
                     [[maybe_unused]] DWORD old_protect; // required for VirtualProtectEx
                     if (!::VirtualProtectEx(

@@ -47,8 +47,8 @@ namespace netfork::io
             &isb,
             &file_size,
             FILE_ATTRIBUTE_TEMPORARY,
-            0,
-            FILE_CREATE,
+            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+            FILE_OVERWRITE_IF,
             FILE_SYNCHRONOUS_IO_NONALERT | FILE_DELETE_ON_CLOSE,
             nullptr,
             0

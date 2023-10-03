@@ -23,10 +23,10 @@
 #include <expected>
 #include <span>
 
+#include <winsock2.h>
+
 #include <netfork-shared/log.hpp>
 #include <netfork-shared/phnt_stub.hpp>
-
-#include <winsock2.h>
 
 namespace netfork::net
 {

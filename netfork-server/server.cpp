@@ -41,13 +41,14 @@ namespace
 
         {
             UNICODE_STRING unexpanded_temp_path;
-            ::RtlInitUnicodeString(&unexpanded_temp_path, unexpanded_path);
+            RtlInitUnicodeString(&unexpanded_temp_path, unexpanded_path);
 
-            const NTSTATUS status = ::RtlExpandEnvironmentStrings_U(
+            const NTSTATUS status = RtlExpandEnvironmentStrings_U(
                 nullptr,
                 &unexpanded_temp_path,
                 &path.get(),
-                nullptr);
+                nullptr
+            );
             if (NT_ERROR(status))
             {
                 return std::unexpected{ status };
@@ -95,7 +96,7 @@ int main()
 
     // FIXME: This will not work if we are netforking multiple images at once.
     // Fix would involve attaching a unique ID to the name.
-    auto image_path = get_nt_path(L"\\??\\%TEMP%\\netforked-image.exe");
+    auto image_path = ::get_nt_path(L"\\??\\%TEMP%\\netforked-image.exe");
     if (!image_path)
     {
 	    LOG_DEBUG_ERR() << "Failed to get NT path for image." << std::endl;

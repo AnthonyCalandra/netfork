@@ -44,14 +44,14 @@ namespace
     {
         HMODULE process_image;
         // Get the current module's base address.
-        ::GetModuleHandleExW(
-            GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-            reinterpret_cast<LPCWSTR>(&get_image_info),
+        GetModuleHandleExW(
+            GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+            nullptr,
             &process_image
         );
 
         MODULEINFO mi{};
-        ::GetModuleInformation(::GetCurrentProcess(), process_image, &mi, sizeof(mi));
+        GetModuleInformation(GetCurrentProcess(), process_image, &mi, sizeof(mi));
 
         return { .base_address = mi.lpBaseOfDll, .size = mi.SizeOfImage };
     }
@@ -84,7 +84,7 @@ namespace
 
 namespace netfork
 {
-    fork_context fork(_In_ SOCKET nf_server_sock)
+    fork_context fork(_In_ SOCKET nf_server_sock, _In_opt_ PCONTEXT restore_context)
     {
         {
             CONTEXT current_context{ .ContextFlags = CONTEXT_ALL };
@@ -97,7 +97,14 @@ namespace netfork
 
             current_context.Rax = std::to_underlying(fork_context::child);
 
-            if (const auto result = net::send_as(nf_server_sock, current_context); FAILED(result))
+            PCONTEXT context_to_restore = &current_context;
+            if (restore_context)
+            {
+                context_to_restore = restore_context;
+            }
+
+            if (const auto result = net::send_as(nf_server_sock, *context_to_restore);
+                FAILED(result))
             {
                 LOG_DEBUG_ERR() << "send_as failed with error: " << result << std::endl;
                 return fork_context::error;

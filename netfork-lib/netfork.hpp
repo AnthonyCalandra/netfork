@@ -17,9 +17,8 @@
 
 #pragma once
 
-#include <netfork-shared/phnt_stub.hpp>
-
 #include <winsock2.h>
+#include <netfork-shared/phnt_stub.hpp>
 
 namespace netfork
 {
@@ -28,5 +27,5 @@ namespace netfork
 		error = 0, parent, child
 	};
 
-	fork_context fork(_In_ SOCKET nf_server_sock);
+	fork_context fork(_In_ SOCKET nf_server_sock, _In_opt_ PCONTEXT restore_context);
 }

@@ -28,15 +28,15 @@ namespace
 
     void shutdown_client(SOCKET netfork_server_sock)
     {
-        ::shutdown(netfork_server_sock, SD_SEND);
+        shutdown(netfork_server_sock, SD_SEND);
 
         WSAEVENT fd_close_event = ::WSACreateEvent();
-        ::WSAEventSelect(netfork_server_sock, fd_close_event, FD_CLOSE);
+        WSAEventSelect(netfork_server_sock, fd_close_event, FD_CLOSE);
         // Wait for the `FD_CLOSE` event.
-        ::WSAWaitForMultipleEvents(1, &fd_close_event, TRUE, WSA_INFINITE, FALSE);
-        ::WSACloseEvent(fd_close_event);
+        WSAWaitForMultipleEvents(1, &fd_close_event, TRUE, WSA_INFINITE, FALSE);
+        WSACloseEvent(fd_close_event);
 
-        ::closesocket(netfork_server_sock);
+        closesocket(netfork_server_sock);
     }
 }
 
@@ -60,7 +60,7 @@ int main()
         return 1;
     }
 
-    const auto ctx = netfork::fork(netfork_server_sock);
+    const auto ctx = netfork::fork(netfork_server_sock, nullptr);
     if (ctx == fork_context::child)
     {
         LOG_DEBUG() << "netfork succeeded" << std::endl;
@@ -76,7 +76,7 @@ int main()
             LOG_DEBUG() << "netfork failed" << std::endl;
         }
 
-        shutdown_client(netfork_server_sock);
+        ::shutdown_client(netfork_server_sock);
     }
 
     std::cin.get();
